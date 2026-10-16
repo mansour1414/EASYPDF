@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyPDF - Edit, Convert, Simplify</title>
+    <meta name="description" content="The elegant, secure tool to edit, convert, and simplify your PDF files — merge, split, compress, OCR, and AI-powered extras." />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Canonical + hreflang. Overwritten per-route at runtime by
+         applyPageSeo() in src/lib/seo.ts — these are just the initial
+         values for the very first paint before React mounts.
+         Only hreflang="x-default" is emitted: the app has exactly ONE URL
+         per page regardless of language (language is a client-side
+         localStorage toggle, not separate /en/ and /ar/ routes), so a real
+         en/ar hreflang pair cannot be built honestly. Emitting en+ar
+         alternates that both point at the same URL as before is
+         boilerplate that adds no signal and was removed (verification
+         pass, Sept 2026) — see src/lib/seo.ts for the full rationale and
+         what to change if real per-language URLs are added later. -->
+    <link rel="canonical" href="https://easypdf-eight.vercel.app/" />
+    <link rel="alternate" hreflang="x-default" href="https://easypdf-eight.vercel.app/" />
+
+    <!-- Fonts: Geist (Primary) & Inter (Secondary for long text) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/style.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/index.min.css" />
+    <!-- Arabic text fix (Sep 2026): Geist and Inter have no Arabic glyphs, so
+         Arabic content previously fell back to whatever font (if any) the
+         visitor's OS happened to ship, with no consistent look. Cairo is a
+         well-supported, modern Arabic sans that pairs cleanly with the
+         Geist/Inter Latin faces; it's loaded the same way (jsDelivr) and
+         only applied to Arabic text via the :lang(ar) rule in index.css —
+         it never touches English/LTR content or the brand's primary color. -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cairo@5.3.0/index.min.css" />
+    <!-- Browser chrome: bird-only crop of the new brand artwork (Sept 2026).
+         The full logo (bird + EASYPDF wordmark) is used everywhere inside
+         the app; browser tab/home-screen icons use just the bird mark
+         since the wordmark is illegible at 32px and below. -->
+    <link rel="icon" type="image/png" href="/assets/favicon-32.png" />
+    <link rel="shortcut icon" type="image/png" href="/assets/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://easypdf-eight.vercel.app/" />
+    <meta property="og:title" content="EasyPDF - Edit, Convert, Simplify" />
+    <meta property="og:description" content="The elegant, secure tool to edit, convert, and simplify your PDF files — core tools run on-device, with secure AI-powered extras." />
+    <meta property="og:image" content="https://easypdf-eight.vercel.app/assets/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="EasyPDF - Edit, Convert, Simplify" />
+    <meta name="twitter:description" content="The elegant, secure tool to edit, convert, and simplify your PDF files — core tools run on-device, with secure AI-powered extras." />
+    <meta name="twitter:image" content="https://easypdf-eight.vercel.app/assets/og-image.png" />
+
+    <!-- Structured data (Sept 2026): tells Google this is a software
+         application (not just an article/blog page), which is what
+         enables rich results like star ratings or price info in search.
+         priceCurrency/price left generic ("0", free tier) since paid plan
+         pricing lives in Stripe and can change independently of this
+         static tag — safer to under-promise here than to hardcode a
+         number that drifts out of sync with actual billing. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "EasyPDF",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "description": "The elegant, secure tool to edit, convert, and simplify your PDF files — merge, split, compress, OCR, and AI-powered extras.",
+      "url": "https://easypdf-eight.vercel.app/",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
+    <!-- Theme flash prevention (Sept 2026, Light/Dark mode).
+         Runs synchronously before anything renders so the correct theme
+         attribute is already on <html> for the very first paint — without
+         this, the page would always paint dark first and then visibly
+         "flash" to light for users who had chosen light mode. Reads the
+         same localStorage key ('theme') that App.tsx's toggle writes to;
+         defaults to 'dark' (this app's original/only look) when nothing
+         has been chosen yet, rather than guessing from the OS preference,
+         so first-time visitors keep seeing exactly the same default
+         experience as before this feature existed. -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme');
+          var theme = (saved === 'light') ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+
+    <!-- Language/direction flash prevention (matches the theme script above):
+         sets lang/dir on <html> before first paint from the same 'lang' key
+         App.tsx's toggle writes to, instead of only ever shipping lang="en"
+         dir left at its default and updating it after React mounts. -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('lang');
+          var lang = (saved === 'ar') ? 'ar' : 'en';
+          document.documentElement.setAttribute('lang', lang);
+          document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+        } catch (e) { /* keep the lang="en" dir="ltr" default above */ }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

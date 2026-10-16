@@ -1,0 +1,57 @@
+[
+  {
+    "id": "hero_badge",
+    "en": "AI-powered PDF tools",
+    "ar": "أدوات PDF مدعومة بالذكاء الاصطناعي"
+  },
+  {
+    "id": "hero_title_en",
+    "en": "Master Your PDFs in Seconds...",
+    "ar": "أنجز مهامك مع ملفات PDF في ثوانٍ..."
+  },
+  {
+    "id": "hero_subtitle",
+    "en": "Empowered by Gemini AI.",
+    "ar": "بمساعدة الذكاء الاصطناعي."
+  },
+  {
+    "id": "hero_description",
+    "en": "Forget traditional tools. With Easy PDF, edit, convert, and summarize your documents simply by conversing with your smart assistant.",
+    "ar": "انسَ الطرق التقليدية. مع Easy PDF، يمكنك تعديل، تحويل، وتلخيص مستنداتك بمجرد التحدث مع مساعدك الذكي."
+  },
+  {
+    "id": "btn_get_started_free",
+    "en": "Get Started Free",
+    "ar": "ابدأ الآن مجاناً"
+  },
+  {
+    "id": "btn_view_pricing",
+    "en": "View Pricing",
+    "ar": "الخطط والأسعار"
+  },
+  {
+    "id": "pricing_title_en",
+    "en": "Simple Pricing for Smart Solutions",
+    "ar": "أسعار بسيطة لحلول ذكية ومتكاملة"
+  },
+  {
+    "id": "pricing_subtitle",
+    "en": "Powerful document management tools tailored for individuals, professionals, and teams. Choose the plan that accelerates your workflow.",
+    "ar": "أدوات قوية لإدارة المستندات ومصممة خصيصاً للأفراد والمحترفين والفرق. اختر الخطة المناسبة لتسريع وتيرة عملك."
+  },
+  {
+    "id": "nav_tools",
+    "en": "Tools",
+    "ar": "الأدوات"
+  },
+  {
+    "id": "nav_pricing",
+    "en": "Pricing",
+    "ar": "الأسعار"
+  },
+  {
+    "id": "nav_workspace",
+    "en": "Workspace",
+    "ar": "بيئة العمل"
+  }
+]

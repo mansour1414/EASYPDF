@@ -1,0 +1,1787 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Geist", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Geist", sans-serif;
+  
+  --color-primary: #818cf8; /* Bento Indigo Accent */
+  --color-secondary: #4f46e5; /* Primary Button/Active color */
+
+  /* ═══════════════════════════════════════════════════════════════
+     MISSING ANIMATION TOKEN (audit, Aug 2026)
+     `animate-fadeIn` is used across 19+ components (AuthModal,
+     ResetPasswordModal, CheckoutSuccessOverlay, TopNavBar's mobile menu,
+     App.tsx's loading overlay, every alert banner, several Workspace
+     panels, and more) but was never actually defined anywhere — it is
+     NOT a Tailwind built-in utility, and Tailwind v4 only generates an
+     `animate-*` utility if a matching `--animate-*` key exists in
+     @theme. With no matching key, the class produced no rule at all, so
+     every one of those "fade in" moments — including this modal's own
+     backdrop and its error/success alerts — was appearing instantly
+     with zero transition. Defining it here fixes all 19+ call sites at
+     once, with no JSX changes needed anywhere else.
+     ═══════════════════════════════════════════════════════════════ */
+  --animate-fadeIn: fadeIn 0.35s ease-out both;
+
+  /* ═══════════════════════════════════════════════════════════════
+     MISSING DESIGN TOKENS (audit, Aug 2026)
+     This @theme block was the app's only color source, but components
+     across ~15 files were already writing utility classes for tokens
+     that were never actually defined here — bg-surface-bright alone
+     appears 45 times. Tailwind v4 only generates a utility if its
+     matching --color-* custom property exists in @theme; for anything
+     undefined, the class silently produces NO rule at all, so the
+     element just fell through to inherited/browser-default styling.
+     This went unnoticed mostly because the app's default inherited text
+     color (an off-white, --color-on-surface) happens to read plausibly
+     against most of this dark theme's backgrounds by coincidence — but
+     several real bugs were hiding in it, most importantly hover states
+     (hover:bg-primary-hover / hover:bg-primary-dark, used on primary
+     "Apply/Export" buttons across most PDF tools) doing literally
+     nothing, and error banners (text-error/bg-error/border-error, used
+     ~26 times including this session's own new error states) rendering
+     in the same plain text color as everything else instead of a
+     distinct error color.
+     Every value below was chosen to fit the EXISTING indigo/slate
+     palette exactly — same hues, just filling in the missing tonal
+     steps — never introducing a new brand color. Grouped by the
+     existing token they extend, in the order first used in the app.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* primary/secondary interactive-state tokens (buttons, links) */
+  --color-primary-hover: #6366f1; /* indigo-500 — one step darker than primary, for :hover */
+  --color-primary-dark: #4f46e5; /* indigo-600 — same as secondary, for :active/pressed */
+  --color-on-primary: #ffffff; /* button label text on primary/secondary-colored backgrounds */
+  --color-on-secondary: #ffffff;
+
+  /* "container" tonal variants — light indigo pops used for badges,
+     pills, and avatar chips (e.g. the "Most Popular" pricing badge,
+     admin user-initial avatars), each paired with a dark, readable
+     on-*-container text color */
+  --color-primary-container: #a5b4fc; /* indigo-300 */
+  --color-on-primary-container: #1e1b4b; /* indigo-950 */
+  --color-secondary-container: #c7d2fe; /* indigo-200 */
+  --color-on-secondary-container: #312e81; /* indigo-800 */
+
+  /* app-wide text/background pairing for the base page background */
+  --color-on-background: #f1f5f9; /* matches --color-on-surface / body's own default */
+
+  /* semantic status color — distinct from the indigo brand hue on
+     purpose, so error states are visually unmistakable */
+  --color-error: #f87171; /* red-400, readable on this dark theme */
+  --color-error-container: #7f1d1d; /* red-900 */
+  --color-on-error: #ffffff;
+  --color-on-error-container: #fecaca; /* red-200 */
+
+  /* success semantic color */
+  --color-success: #34d399; /* emerald-400, readable on dark theme */
+  --color-success-container: #064e3b; /* emerald-900 */
+  --color-on-success: #020617;
+  --color-on-success-container: #a7f3d0; /* emerald-200 */
+
+  /* warning semantic color */
+  --color-warning: #fbbf24; /* amber-400, readable on dark theme */
+  --color-warning-container: #78350f; /* amber-900 */
+  --color-on-warning: #020617;
+  --color-on-warning-container: #fde68a; /* amber-200 */
+
+  --color-background: #020617; /* Slate-950 / Obsidian base */
+  --color-surface: #0f172a; /* Slate-900 Bento Card Surface */
+  --color-surface-container: #1e293b; /* Slate-800 containers */
+  --color-surface-container-high: #334155;
+  --color-surface-container-low: #0f172a;
+  --color-surface-container-lowest: #020617;
+
+  /* elevated surface for cards/modals that sit above base surface */
+  --color-surface-elevated: #1e293b; /* same as surface-container */
+  /* surface-tier extensions — same slate scale as the tokens above,
+     filling in tiers other components already reference by name:
+     surface-bright (elevated card/input backgrounds, 45 usages),
+     surface-dim (full-page admin backgrounds), surface-variant
+     (selected/active tab backgrounds) */
+  --color-surface-bright: #1e293b; /* slate-800 — matches surface-container's role */
+  --color-surface-dim: #020617; /* slate-950 — matches background/lowest */
+  --color-surface-variant: #334155; /* slate-700 — matches surface-container-high's role */
+  --color-on-surface: #f1f5f9; /* slate-100 high readability */
+  --color-on-surface-variant: #94a3b8; /* slate-400 */
+  --color-outline: #334155; /* slate-700 */
+  --color-outline-variant: #1e293b; /* slate-800 for subtle borders */
+
+  /* Light mode semantic tokens (for future light mode support) */
+  --color-background-light: #f8fafc; /* slate-50 */
+  --color-surface-light: #ffffff; /* white */
+  --color-surface-container-light: #f1f5f9; /* slate-100 */
+  --color-surface-elevated-light: #ffffff;
+  --color-on-surface-light: #0f172a; /* slate-900 */
+  --color-on-surface-variant-light: #475569; /* slate-600 */
+  --color-outline-light: #cbd5e1; /* slate-300 */
+  --color-outline-variant-light: #e2e8f0; /* slate-200 */
+  --color-primary-light: #4f46e5; /* indigo-600 */
+  --color-primary-hover-light: #4338ca; /* indigo-700 */
+  --color-error-light: #dc2626; /* red-600 */
+  --color-success-light: #059669; /* emerald-600 */
+  --color-warning-light: #d97706; /* amber-600 */
+
+  /* Additional light-mode surface tokens (Sept 2026, Light/Dark toggle).
+     The tokens above already covered background/surface/on-surface/outline;
+     these fill in the remaining surface tiers that dark mode defines above
+     (surface-container-high/low/lowest, surface-bright, surface-dim,
+     surface-variant, on-background) so components using those utilities
+     (bg-surface-bright is used 45+ times across the app) also re-theme
+     correctly instead of staying stuck in their dark-mode color. Same
+     naming convention as the existing "-light" tokens above. */
+  --color-surface-container-high-light: #e2e8f0; /* slate-200 */
+  --color-surface-container-low-light: #ffffff;
+  --color-surface-container-lowest-light: #f8fafc; /* slate-50, = background-light */
+  --color-surface-bright-light: #ffffff;
+  --color-surface-dim-light: #f8fafc; /* slate-50, = background-light */
+  --color-surface-variant-light: #e2e8f0; /* slate-200 */
+  --color-on-background-light: #0f172a; /* slate-900, = on-surface-light */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ARABIC TEXT FONT (Sep 2026)
+   Geist and Inter (below) have no Arabic glyphs, so Arabic content had no
+   dedicated font and fell back to whatever the OS happened to provide —
+   inconsistent, and often visually poor next to the Latin UI chrome. Cairo
+   (loaded in index.html, same jsDelivr pattern as Inter) is applied ONLY to
+   Arabic-script text via :lang(ar)/[dir="rtl"], layered onto the existing
+   stacks rather than replacing them, so English/LTR content, the brand
+   color, and every other visual token are unchanged.
+   ───────────────────────────────────────────────────────────── */
+:lang(ar),
+[dir="rtl"] {
+  --font-sans: "Cairo", "Geist", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-primary: "Cairo", "Geist", system-ui, -apple-system, sans-serif;
+  --font-secondary: "Cairo", "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Cairo", "Geist", sans-serif;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2026 PREMIUM AI/SaaS TYPOGRAPHY SYSTEM (Vercel / OpenAI / Linear Style)
+   Primary: Geist | Secondary: Inter (for long paragraphs/docs/descriptions)
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Nav height used by mobile menu panel offset (TopNavBar Phase 3) */
+  --nav-h: 60px;
+
+  --font-primary: "Geist", system-ui, -apple-system, sans-serif;
+  --font-secondary: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Typography Scale & Tokens (Desktop Baseline) */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+
+  /* Headings & Specialized Scales with Responsive Clamps */
+  --text-h1: clamp(2.5rem, 5vw, 4.5rem);          /* 72px desktop */
+  --weight-h1: 800;
+  --lh-h1: 1.08;
+
+  --text-h2: clamp(2rem, 3.8vw, 3.5rem);          /* 56px desktop */
+  --weight-h2: 700;
+  --lh-h2: 1.15;
+
+  --text-h3: clamp(1.75rem, 3vw, 2.5rem);         /* 40px desktop */
+  --weight-h3: 700;
+  --lh-h3: 1.2;
+
+  --text-h4: clamp(1.25rem, 2vw, 1.75rem);        /* 28px desktop */
+  --weight-h4: 600;
+  --lh-h4: 1.3;
+
+  --text-body: 1rem;                              /* 16px */
+  --weight-body: 400;
+  --lh-body: 1.6;
+
+  --text-small: 0.875rem;                         /* 14px */
+  --weight-small: 400;
+  --lh-small: 1.5;
+
+  --text-label: 0.8125rem;                        /* 13px */
+  --weight-label: 500;
+  --tracking-label: 0.025em;
+
+  --text-button: 0.9375rem;                       /* 15px */
+  --weight-button: 600;
+}
+
+/* Responsive Scaling: Tablet (-15%), Mobile (-25%) handled gracefully via clamp and media queries */
+@media (max-width: 1024px) {
+  :root {
+    --text-h1: clamp(2.2rem, 4.5vw, 3.6rem);
+    --text-h2: clamp(1.8rem, 3.2vw, 2.8rem);
+    --text-h3: clamp(1.5rem, 2.5vw, 2.1rem);
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --text-h1: clamp(1.9rem, 8vw, 2.8rem);
+    --text-h2: clamp(1.6rem, 6vw, 2.2rem);
+    --text-h3: clamp(1.3rem, 5vw, 1.8rem);
+  }
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  overflow-x: hidden;
+  font-family: var(--font-primary);
+  font-size: var(--text-base);
+  font-weight: 400;
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Secondary font for long paragraphs, documentation, and form descriptions */
+.font-secondary, p, .form-description, .doc-content {
+  font-family: var(--font-secondary);
+}
+
+/* Typography Utility Classes */
+.typography-hero {
+  font-size: var(--text-h1);
+  font-weight: var(--weight-h1);
+  line-height: var(--lh-h1);
+  letter-spacing: -0.035em;
+  font-family: var(--font-primary);
+}
+
+.typography-section {
+  font-size: var(--text-h2);
+  font-weight: var(--weight-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: -0.025em;
+  font-family: var(--font-primary);
+}
+
+.typography-card {
+  font-size: var(--text-h4);
+  font-weight: var(--weight-h4);
+  line-height: var(--lh-h4);
+  letter-spacing: -0.015em;
+  font-family: var(--font-primary);
+}
+
+.typography-body {
+  font-size: var(--text-base);
+  font-weight: var(--weight-body);
+  line-height: var(--lh-body);
+  font-family: var(--font-secondary);
+}
+
+.typography-small {
+  font-size: var(--text-small);
+  font-weight: var(--weight-small);
+  line-height: var(--lh-small);
+  font-family: var(--font-secondary);
+}
+
+.typography-label {
+  font-size: var(--text-label);
+  font-weight: var(--weight-label);
+  letter-spacing: var(--tracking-label);
+  font-family: var(--font-primary);
+}
+
+.bg-mesh {
+  background-color: var(--color-background);
+  background-image: 
+    radial-gradient(circle at 15% 20%, rgba(79, 70, 229, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(129, 140, 248, 0.14) 0%, transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.12) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Backs the --animate-fadeIn token declared in @theme above (see the
+   MISSING ANIMATION TOKEN note there). Deliberately a plain opacity fade
+   with no transform, so it's cheap, never shifts layout, and is safe to
+   leave running even under prefers-reduced-motion. */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 2rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  will-change: transform;
+}
+
+.glass-panel:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(129, 140, 248, 0.5);
+  box-shadow: 0 16px 48px 0 rgba(99, 102, 241, 0.25);
+  background: rgba(15, 23, 42, 0.88);
+}
+
+.glass-panel-highlight {
+  background: rgba(79, 70, 229, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 12px 40px -10px rgba(99, 102, 241, 0.5);
+}
+
+.glass-panel-highlight:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 50px -5px rgba(99, 102, 241, 0.7);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 50%, var(--color-primary-hover) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2026 MODERN AI/SaaS BUTTON TYPOGRAPHY (Geist + Weight 600)
+   ───────────────────────────────────────────────────────────── */
+.btn-primary {
+  background: var(--color-secondary);
+  color: var(--color-on-primary);
+  border: none;
+  font-family: var(--font-primary);
+  font-size: var(--text-button);
+  font-weight: var(--weight-button);
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), background 0.25s ease;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 16px 0 rgba(79, 70, 229, 0.35);
+  will-change: transform;
+  min-height: 44px; /* Minimum touch target */
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 28px 0 rgba(99, 102, 241, 0.55);
+}
+
+.btn-primary:active {
+  background: var(--color-primary-dark);
+  transform: scale(0.98);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   NAV CTA BUTTON  (Phase 3 — Sept 2026)
+   Used exclusively in TopNavBar for "Get Started / ابدأ مجاناً".
+   Distinct from .btn-primary so the nav CTA can diverge in size
+   and shimmer without affecting other primary buttons.
+   ───────────────────────────────────────────────────────────── */
+.nav-cta-btn {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    #6366f1 50%,
+    var(--color-secondary) 100%
+  );
+  color: #ffffff;
+  font-family: var(--font-primary);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 0 0 0 rgba(129, 140, 248, 0),
+    0 2px 12px rgba(129, 140, 248, 0.28);
+  transition:
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    filter 0.25s ease;
+}
+
+/* Shimmer sweep on hover */
+.nav-cta-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 65%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.55s ease;
+}
+
+.nav-cta-btn:hover {
+  box-shadow:
+    0 0 0 1px rgba(129, 140, 248, 0.4),
+    0 4px 24px rgba(129, 140, 248, 0.45);
+  filter: brightness(1.08);
+}
+
+.nav-cta-btn:hover::before {
+  transform: translateX(100%);
+}
+
+.nav-cta-btn:active {
+  filter: brightness(0.95);
+  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.3),
+              0 2px 8px rgba(129, 140, 248, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-cta-btn::before { display: none; }
+  .nav-cta-btn { transition: filter 0.1s ease; }
+}
+
+.btn-secondary {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--color-on-surface);
+  font-family: var(--font-primary);
+  font-size: var(--text-button);
+  font-weight: var(--weight-button);
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, background 0.25s ease;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  will-change: transform;
+  min-height: 44px; /* Minimum touch target */
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px) scale(1.02);
+  border-color: rgba(129, 140, 248, 0.5);
+  background: rgba(51, 65, 85, 0.85);
+  color: #ffffff;
+  box-shadow: 0 6px 20px 0 rgba(99, 102, 241, 0.2);
+}
+
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+
+
+.drop-zone {
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+  border-radius: 2rem;
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 35px rgba(99, 102, 241, 0.25);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.laser-progress {
+  height: 4px;
+  background: var(--color-primary);
+  box-shadow: 0 0 12px var(--color-primary), 0 0 24px var(--color-primary);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.chip {
+  background: var(--color-primary-container);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-primary);
+  border-radius: 9999px;
+  font-size: var(--text-label);
+  font-weight: var(--weight-label);
+  letter-spacing: var(--tracking-label);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: var(--color-on-primary-container);
+}
+
+.chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LANDING PAGE  (Phase 4 — Sept 2026)
+   Centred hero + Bento grid + Trust strip + CTA box.
+   Design refs:
+     • UI UX Pro Max: Glassmorphism + Bento Box Grid
+     • Apple HIG: tap targets 44px, meaningful motion only
+     • Emil Kowalski: transform+opacity only, spring physics
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Hero headline (fluid clamp scale) ──────────────────────── */
+.hero-headline {
+  font-family: var(--font-display, 'Geist', sans-serif);
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1.05;
+}
+
+.hero-subline {
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  line-height: 1.65;
+}
+
+/* ── Dropzone hero ────────────────────────────────────────────
+   Generous padding, dashed animated border, glassmorphism bg.
+   Hover/drag states driven by motion.animate() in the component.
+   ─────────────────────────────────────────────────────────── */
+.dropzone-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 3rem 2rem;
+  border-radius: 1.75rem;
+  border: 2px dashed rgba(255, 255, 255, 0.10);
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  transition: background 0.25s ease, border-color 0.25s ease;
+  /* border-color is driven by motion.animate — no CSS transition conflict */
+}
+
+.dropzone-hero:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.dropzone-hero:hover {
+  background: rgba(15, 23, 42, 0.70);
+}
+
+.dropzone-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.25s ease;
+}
+
+/* ── Quick-access tool chips ─────────────────────────────────── */
+.quick-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+  color: #94a3b8; /* slate-400 */
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+  min-height: 36px;
+  white-space: nowrap;
+  outline: none;
+}
+
+.quick-chip:hover {
+  color: #f1f5f9; /* slate-100 */
+  background: rgba(129, 140, 248, 0.10);
+  border-color: rgba(129, 140, 248, 0.30);
+}
+
+.quick-chip:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ── Bento grid ─────────────────────────────────────────────────
+   4 columns desktop → 2 tablet → 1 mobile.
+   Wide cards (bento-card--wide) span 2 columns for variety.
+   ─────────────────────────────────────────────────────────── */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  /* Bento spec: auto-rows so cards grow to content, not fixed height */
+  grid-auto-rows: auto;
+}
+
+.bento-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(15, 23, 42, 0.60);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+  transition:
+    border-color 0.22s ease,
+    box-shadow   0.22s ease;
+  /* min touch target */
+  min-height: 44px;
+}
+
+.bento-card:hover {
+  border-color: rgba(129, 140, 248, 0.28);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35),
+              0 0 0 1px rgba(129, 140, 248, 0.12);
+}
+
+.bento-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.bento-card--wide {
+  grid-column: span 2;
+}
+
+.bento-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* Responsive: 4 → 2 → 1 */
+@media (max-width: 1024px) {
+  .bento-grid { grid-template-columns: repeat(2, 1fr); }
+  .bento-card--wide { grid-column: span 2; }
+}
+
+@media (max-width: 640px) {
+  .bento-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+  .bento-card--wide { grid-column: span 1; }
+  .dropzone-hero { padding: 2rem 1.25rem; border-radius: 1.25rem; }
+}
+
+/* ── Trust strip ─────────────────────────────────────────────── */
+.trust-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.trust-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background: rgba(129, 140, 248, 0.12);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+/* ── Bottom CTA box ──────────────────────────────────────────── */
+.cta-box {
+  padding: 3rem 2rem;
+  border-radius: 1.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+@media (max-width: 640px) {
+  .cta-box { padding: 2rem 1.25rem; border-radius: 1.25rem; }
+  .hero-headline { letter-spacing: -0.04em; }
+}
+
+/* Reduced motion: disable all hover transitions on bento and dropzone */
+@media (prefers-reduced-motion: reduce) {
+  .bento-card,
+  .dropzone-hero,
+  .quick-chip,
+  .trust-stat { transition: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LOGO ASSET
+   Standard site logos are always static — no entrance animation,
+   no glow, no pulse. The splash owns its own motion entirely.
+   Phase 2 (Sept 2026): removed logo-entrance keyframe that caused
+   the "weird spinning logo" reported by the owner. NavBar logo is
+   now a simple render with a smooth hover opacity transition only.
+   ───────────────────────────────────────────────────────────── */
+.logo-anchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* No animation — clean static render everywhere except the splash */
+}
+
+.logo-image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  /* Subtle hover interaction handled by parent's group-hover in Tailwind */
+  transition: opacity 200ms ease;
+}
+
+/* NavBar logo: slight opacity lift on hover — the only motion for the logo
+   outside the splash. Driven by the .group class on the parent <button>. */
+.group:hover .logo-image {
+  opacity: 0.88;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ACCESSIBILITY & POLISH ADDITIONS (Aug 2026 UI pass)
+   Scoped, additive-only: no existing color, button, or layout rule
+   above is modified. These fill genuine gaps — keyboard focus
+   visibility and reduced-motion support — without altering any
+   existing visual identity or interaction.
+   ───────────────────────────────────────────────────────────── */
+
+/* Visible keyboard focus ring for every interactive element. Previously
+   there was no explicit :focus-visible treatment anywhere in the sheet,
+   so keyboard users had only the browser's inconsistent default outline
+   (often invisible against the dark background) to navigate by. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid rgba(129, 140, 248, 0.9);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* Additional focus-visible for custom interactive elements */
+.chip:focus-visible,
+.drop-zone:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="menuitem"]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Semantic state utility classes for consistent error/success/warning styling */
+.badge-error {
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+  border: 1px solid var(--color-error);
+}
+
+.badge-success {
+  background: var(--color-success-container);
+  color: var(--color-on-success-container);
+  border: 1px solid var(--color-success);
+}
+
+.badge-warning {
+  background: var(--color-warning-container);
+  color: var(--color-on-warning-container);
+  border: 1px solid var(--color-warning);
+}
+
+.badge-info {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  border: 1px solid var(--color-primary);
+}
+
+/* Text color utilities for semantic states */
+.text-error { color: var(--color-error); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-info { color: var(--color-primary); }
+
+/* Background color utilities for semantic states */
+.bg-error { background-color: var(--color-error); }
+.bg-error-container { background-color: var(--color-error-container); }
+.bg-success { background-color: var(--color-success); }
+.bg-success-container { background-color: var(--color-success-container); }
+.bg-warning { background-color: var(--color-warning); }
+.bg-warning-container { background-color: var(--color-warning-container); }
+.bg-info { background-color: var(--color-primary); }
+.bg-info-container { background-color: var(--color-primary-container); }
+
+/* Border color utilities for semantic states */
+.border-error { border-color: var(--color-error); }
+.border-success { border-color: var(--color-success); }
+.border-warning { border-color: var(--color-warning); }
+.border-info { border-color: var(--color-primary); }
+
+/* Focus ring utilities for semantic states */
+.focus-ring-error:focus-visible { outline-color: var(--color-error); }
+.focus-ring-success:focus-visible { outline-color: var(--color-success); }
+.focus-ring-warning:focus-visible { outline-color: var(--color-warning); }
+.focus-ring-info:focus-visible { outline-color: var(--color-primary); }
+
+/* Minimum touch target utility */
+.min-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (pointer: fine) {
+  .min-touch-target {
+    min-height: 28px;
+    min-width: 28px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CONTENT CARD — Standard card for content layer (not functional layer)
+   Subtle surface with border, no heavy glass/blur. Use for:
+   - Protocol/tool/pricing cards
+   - Content panels
+   - Dashboard widgets
+   ───────────────────────────────────────────────────────────── */
+.content-card {
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 1rem;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.content-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-outline);
+  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.3);
+}
+
+.content-card-interactive {
+  @apply cursor-pointer;
+}
+
+.content-card-interactive:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 8px 24px 0 rgba(99, 102, 241, 0.15);
+}
+
+/* Elevated content card for selected/active states */
+.content-card-elevated {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 16px 0 rgba(99, 102, 241, 0.2);
+}
+
+/* Baseline pointer cursor for every interactive control (audit, Aug 2026).
+   There was no global `button { cursor: pointer }` reset — most buttons
+   picked up a pointer cursor incidentally via .btn-primary/.btn-secondary
+   or an explicit `cursor-pointer` utility class, but any plain <button>
+   without one of those (and Safari/iOS in particular, which — unlike
+   Chrome/Firefox — renders a *default* arrow cursor on unstyled buttons,
+   not a pointer) would feel subtly "un-clickable" to hover over. Matters
+   even more given iOS/macOS packaging is next on the roadmap. `:disabled`
+   is excluded so disabled controls correctly keep the "not-allowed"/default
+   cursor already set elsewhere in this file. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LIGHT MODE (Sept 2026 — manual Light/Dark toggle)
+
+   This used to be gated behind `@media (prefers-color-scheme: light)`,
+   which only followed the OS-level setting and had no user-facing control,
+   no persistence, and no way to force light mode on a dark-OS device (or
+   vice versa). It is now driven by an explicit `data-theme="light"`
+   attribute on <html>, set by the toggle in TopNavBar (see App.tsx's
+   `theme`/`handleToggleTheme`) and persisted to localStorage, with the
+   inline script in index.html applying it before first paint to avoid a
+   flash of the wrong theme. The color decisions below are unchanged from
+   the original media-query version — only the selector changed — EXCEPT
+   that --color-primary/--color-primary-hover are intentionally NOT
+   overridden here anymore, so the #818cf8 brand color stays identical in
+   both themes per the project's brand-color requirement.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root[data-theme="light"] {
+  --color-background: var(--color-background-light);
+  --color-surface: var(--color-surface-light);
+  --color-surface-container: var(--color-surface-container-light);
+  --color-surface-container-high: var(--color-surface-container-high-light);
+  --color-surface-container-low: var(--color-surface-container-low-light);
+  --color-surface-container-lowest: var(--color-surface-container-lowest-light);
+  --color-surface-elevated: var(--color-surface-elevated-light);
+  --color-surface-bright: var(--color-surface-bright-light);
+  --color-surface-dim: var(--color-surface-dim-light);
+  --color-surface-variant: var(--color-surface-variant-light);
+  --color-on-surface: var(--color-on-surface-light);
+  --color-on-surface-variant: var(--color-on-surface-variant-light);
+  --color-on-background: var(--color-on-background-light);
+  --color-outline: var(--color-outline-light);
+  --color-outline-variant: var(--color-outline-variant-light);
+  --color-error: var(--color-error-light);
+  --color-success: var(--color-success-light);
+  --color-warning: var(--color-warning-light);
+}
+
+:root[data-theme="light"] .bg-mesh {
+  background-color: var(--color-background);
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(79, 70, 229, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(129, 140, 248, 0.10) 0%, transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 50%);
+}
+
+:root[data-theme="light"] .glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="light"] .glass-panel:hover {
+  border-color: rgba(79, 70, 229, 0.3);
+  box-shadow: 0 16px 48px 0 rgba(99, 102, 241, 0.15);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+:root[data-theme="light"] .glass-panel-highlight {
+  background: rgba(79, 70, 229, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 12px 40px -10px rgba(99, 102, 241, 0.3);
+}
+
+:root[data-theme="light"] .glass-panel-highlight:hover {
+  box-shadow: 0 20px 50px -5px rgba(99, 102, 241, 0.4);
+}
+
+:root[data-theme="light"] .drop-zone {
+  border: 2px dashed rgba(0, 0, 0, 0.15);
+  background: rgba(241, 245, 249, 0.8);
+}
+
+:root[data-theme="light"] .drop-zone:hover,
+:root[data-theme="light"] .drop-zone.dragover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 35px rgba(99, 102, 241, 0.2);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+:root[data-theme="light"] .chip {
+  background: var(--color-primary-container);
+  border: 1px solid var(--color-primary);
+}
+
+:root[data-theme="light"] .content-card {
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.06);
+}
+
+:root[data-theme="light"] .content-card:hover {
+  border-color: var(--color-outline);
+  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="light"] .content-card-interactive:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 8px 24px 0 rgba(99, 102, 241, 0.12);
+}
+
+:root[data-theme="light"] .content-card-elevated {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 16px 0 rgba(99, 102, 241, 0.12);
+}
+
+:root[data-theme="light"] .btn-secondary {
+  background: rgba(241, 245, 249, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--color-on-surface);
+}
+
+:root[data-theme="light"] .btn-secondary:hover {
+  background: rgba(226, 232, 240, 0.95);
+  border-color: rgba(79, 70, 229, 0.4);
+  color: var(--color-on-surface);
+  box-shadow: 0 6px 20px 0 rgba(99, 102, 241, 0.12);
+}
+
+:root[data-theme="light"] .auth-input {
+  background: var(--color-surface-container-light);
+  border: 1px solid var(--color-outline-light);
+  color: var(--color-on-surface-light);
+}
+
+:root[data-theme="light"] .auth-input::placeholder {
+  color: var(--color-on-surface-variant-light);
+}
+
+:root[data-theme="light"] .auth-input:focus {
+  background: var(--color-surface-light);
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+}
+
+:root[data-theme="light"] .skeleton-shimmer {
+  background: rgba(71, 85, 105, 0.08);
+}
+
+:root[data-theme="light"] .skeleton-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.04) 50%,
+    transparent 100%
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Light-mode compatibility layer for raw dark-mode-only Tailwind
+   utility idioms (Sept 2026).
+
+   The custom component classes above (.glass-panel, .content-card, etc.)
+   already had a real light-mode design. But most of the app's borders,
+   subtle-tint backgrounds and secondary text are written as plain Tailwind
+   utilities like `border-white/10`, `bg-white/5` and `text-slate-400` —
+   literal white/near-white values used as "translucent ink on a dark
+   background". Those utilities appear hundreds of times across
+   ToolsPage, Workspace, TopNavBar, the Admin pages, modals and forms.
+   Left alone, they would stay literally white even on a light background
+   (a near-invisible white-on-white border/text), which is exactly the
+   "hardcoded colors that only work in one theme" problem this feature is
+   meant to avoid — while rewriting every individual usage across ~35
+   component files would be a full redesign, which is explicitly out of
+   scope for this task.
+
+   Instead, the same utility classes are redefined here, scoped to
+   `[data-theme="light"]`, using the inverse "ink" (dark) tone at a
+   matching opacity — the same subtle-border/subtle-tint role, just dark
+   ink on light paper instead of light "glass" on a dark background. No
+   component file needed to change for this to take effect.
+
+   Known limitation (documented rather than silently left broken): the
+   `divide-white/*` utility (5 usages total) is not covered here — Tailwind
+   v4 applies it via an internal child-combinator selector that isn't safe
+   to override generically without risking other divide-color usages, and
+   the numeric occurrence count is low enough that this is a minor,
+   visible-but-not-blocking cosmetic gap rather than a readability issue.
+   ───────────────────────────────────────────────────────────── */
+:root[data-theme="light"] .bg-white\/1  { background-color: rgba(30, 41, 59, 0.01); }
+:root[data-theme="light"] .bg-white\/2  { background-color: rgba(30, 41, 59, 0.02); }
+:root[data-theme="light"] .bg-white\/3  { background-color: rgba(30, 41, 59, 0.03); }
+:root[data-theme="light"] .bg-white\/4  { background-color: rgba(30, 41, 59, 0.04); }
+:root[data-theme="light"] .bg-white\/5  { background-color: rgba(30, 41, 59, 0.05); }
+:root[data-theme="light"] .bg-white\/8  { background-color: rgba(30, 41, 59, 0.08); }
+:root[data-theme="light"] .bg-white\/10 { background-color: rgba(30, 41, 59, 0.10); }
+:root[data-theme="light"] .bg-white\/20 { background-color: rgba(30, 41, 59, 0.20); }
+
+:root[data-theme="light"] .hover\:bg-white\/4:hover  { background-color: rgba(30, 41, 59, 0.04); }
+:root[data-theme="light"] .hover\:bg-white\/5:hover  { background-color: rgba(30, 41, 59, 0.06); }
+:root[data-theme="light"] .hover\:bg-white\/10:hover { background-color: rgba(30, 41, 59, 0.10); }
+
+:root[data-theme="light"] .border-white\/5  { border-color: rgba(30, 41, 59, 0.08); }
+:root[data-theme="light"] .border-white\/8  { border-color: rgba(30, 41, 59, 0.12); }
+:root[data-theme="light"] .border-white\/10 { border-color: rgba(30, 41, 59, 0.15); }
+:root[data-theme="light"] .border-white\/20 { border-color: rgba(30, 41, 59, 0.25); }
+:root[data-theme="light"] .border-white\/30 { border-color: rgba(30, 41, 59, 0.35); }
+:root[data-theme="light"] .border-white\/80 { border-color: rgba(30, 41, 59, 0.70); }
+
+/* NOTE (this revision): the earlier version of this file also had blanket
+   `.text-white` / `.text-slate-100..400` overrides here. Those were wrong:
+   many components use text-white on TOP of an already-colored background
+   (e.g. `bg-primary text-white` buttons, `bg-gradient-to-tr ... text-white`
+   icon badges) where the text must stay white in both themes — an element's
+   text color can coexist with any background, unlike bg-white/N which is
+   always the element's own (and therefore always neutral/safe to invert).
+   Those cases have been fixed directly in each component instead (swapped
+   to text-on-surface / text-on-surface-variant only where the element sits
+   on the plain neutral page/card background, left untouched everywhere the
+   text sits on a colored fill) — see the Implementation Report. */
+
+/* AICopilot (the AI chat side-panel) intentionally keeps its own permanent
+   dark chat aesthetic (bg-neutral-800/900/950, white-tint overlays) instead
+   of adopting the app-wide light theme — it isn't built on the shared
+   surface-token system, and converting its whole dark-chat visual language
+   to a light theme would be a redesign of that component, not a fix. The
+   .ai-copilot-panel scope below restores the original dark-mode overlay
+   values specifically inside it, overriding the general light-theme
+   compatibility layer above (which would otherwise also darken these
+   overlays here, muddying a panel that never actually turns light). Higher
+   selector specificity (two classes) makes these win regardless of source
+   order. */
+:root[data-theme="light"] .ai-copilot-panel .bg-white\/5   { background-color: rgba(255, 255, 255, 0.05); }
+:root[data-theme="light"] .ai-copilot-panel .bg-white\/10  { background-color: rgba(255, 255, 255, 0.10); }
+:root[data-theme="light"] .ai-copilot-panel .hover\:bg-white\/10:hover { background-color: rgba(255, 255, 255, 0.10); }
+:root[data-theme="light"] .ai-copilot-panel .border-white\/5  { border-color: rgba(255, 255, 255, 0.05); }
+:root[data-theme="light"] .ai-copilot-panel .border-white\/10 { border-color: rgba(255, 255, 255, 0.10); }
+
+/* ─────────────────────────────────────────────────────────────
+   Light-mode fixes for the Landing Page hero + Bento grid
+   (Sept 2026, round 3). These custom component classes
+   (.dropzone-hero, .dropzone-icon-wrap, .quick-chip, .bento-card,
+   .trust-stat, .trust-stat-icon, .cta-box) were written with
+   literal rgba(dark-navy) / rgba(white) values instead of the
+   --color-* tokens, so none of the work above ever reached them —
+   they stayed dark, translucent, blurred glass panels sitting on
+   top of the now-light page background, which is exactly the
+   "muddy gray box" look reported. Light-mode versions below use
+   solid, opaque, high-contrast surfaces (matching a typical light
+   SaaS look) instead of trying to keep the dark "frosted glass"
+   effect on a light background, since translucent-over-light reads
+   as dirty rather than premium the way translucent-over-dark does.
+   ───────────────────────────────────────────────────────────── */
+:root[data-theme="light"] .dropzone-hero {
+  border-color: rgba(99, 102, 241, 0.35);
+  background: #f5f6ff;
+}
+
+:root[data-theme="light"] .dropzone-hero:hover {
+  background: #eef0ff;
+  border-color: var(--color-primary);
+}
+
+:root[data-theme="light"] .dropzone-icon-wrap {
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+:root[data-theme="light"] .dropzone-icon-wrap.bg-white\/5 {
+  background: #e8eaff;
+}
+
+:root[data-theme="light"] .quick-chip {
+  border-color: #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+}
+
+:root[data-theme="light"] .quick-chip:hover {
+  color: var(--color-primary);
+  background: #eef0ff;
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+:root[data-theme="light"] .bento-card {
+  border-color: #e7e9f5;
+  background: #ffffff;
+  box-shadow: 0 2px 10px 0 rgba(15, 23, 42, 0.05);
+}
+
+:root[data-theme="light"] .bento-card:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 10px 28px 0 rgba(79, 70, 229, 0.12);
+}
+
+:root[data-theme="light"] .trust-stat {
+  border-color: #e7e9f5;
+  background: #ffffff;
+}
+
+:root[data-theme="light"] .trust-stat-icon {
+  background: #e8eaff;
+}
+
+:root[data-theme="light"] .cta-box {
+  border-color: #e7e9f5;
+  background: linear-gradient(135deg, #f5f6ff 0%, #ffffff 100%);
+}
+
+/* Bento icon accent pairs: each is `bg-{color}-500/15 text-{color}-300` in
+   dark mode (a soft light-toned tint that pops against dark navy). On a
+   white card those same 300-weight text colors have poor contrast, so
+   light mode uses solid pastel badges (100) with a darker, more saturated
+   icon color (600) instead — closer to how colorful icon badges look on
+   typical light SaaS product pages. */
+:root[data-theme="light"] .bg-indigo-500\/15  { background-color: #e0e7ff; }
+:root[data-theme="light"] .text-indigo-300    { color: #4f46e5; }
+:root[data-theme="light"] .bg-violet-500\/15  { background-color: #ede9fe; }
+:root[data-theme="light"] .text-violet-300    { color: #7c3aed; }
+:root[data-theme="light"] .bg-sky-500\/15     { background-color: #e0f2fe; }
+:root[data-theme="light"] .text-sky-300       { color: #0284c7; }
+:root[data-theme="light"] .bg-emerald-500\/15 { background-color: #d1fae5; }
+:root[data-theme="light"] .text-emerald-300   { color: #059669; }
+:root[data-theme="light"] .bg-amber-500\/15   { background-color: #fef3c7; }
+:root[data-theme="light"] .text-amber-300     { color: #b45309; }
+:root[data-theme="light"] .bg-rose-500\/15    { background-color: #ffe4e6; }
+:root[data-theme="light"] .text-rose-300      { color: #e11d48; }
+:root[data-theme="light"] .bg-teal-500\/15    { background-color: #ccfbf1; }
+:root[data-theme="light"] .text-teal-300      { color: #0d9488; }
+:root[data-theme="light"] .bg-purple-500\/15  { background-color: #f3e8ff; }
+:root[data-theme="light"] .text-purple-300    { color: #9333ea; }
+
+/* Respect the OS-level reduced-motion preference. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Slim, low-contrast scrollbar consistent with the dark glass aesthetic
+   used throughout (glass-panel, drop-zone, etc.) instead of the default
+   browser scrollbar, which stood out sharply against the dark theme. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+  background-clip: padding-box;
+}
+
+/* Reusable shimmer skeleton for loading states — additive utility class,
+   opt-in only, doesn't change any existing loading indicator. */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.08);
+}
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmerSweep 1.6s ease-in-out infinite;
+}
+@keyframes skeletonShimmerSweep {
+  0% { background-position: 150% 0; }
+  100% { background-position: -50% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after {
+    animation: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SCROLL REVEAL & MICRO-INTERACTION UTILITIES (Phase 4)
+   Apple-style: motion explains hierarchy, continuity, state changes.
+   ───────────────────────────────────────────────────────────── */
+
+/* Scroll Reveal — uses IntersectionObserver in components.
+   Base class: invisible, slightly below. JS adds .sr-visible when in view. */
+.sr-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.sr-reveal.sr-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered children — parent gets .sr-stagger, children get .sr-child */
+.sr-stagger > * {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.sr-stagger.sr-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger delays — applied via inline style or utility classes */
+.sr-delay-1 { transition-delay: 0.05s; }
+.sr-delay-2 { transition-delay: 0.1s; }
+.sr-delay-3 { transition-delay: 0.15s; }
+.sr-delay-4 { transition-delay: 0.2s; }
+.sr-delay-5 { transition-delay: 0.25s; }
+.sr-delay-6 { transition-delay: 0.3s; }
+
+/* Reduced motion: instant reveal */
+@media (prefers-reduced-motion: reduce) {
+  .sr-reveal,
+  .sr-stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MICRO-INTERACTION ENHANCEMENTS (Phase 4)
+   Subtle, purposeful feedback for interactive elements.
+   ───────────────────────────────────────────────────────────── */
+
+/* Button micro-interactions — enhanced from existing .btn-primary/.btn-secondary */
+.btn-primary,
+.btn-secondary {
+  /* Existing transitions are good; adding subtle active scale */
+}
+.btn-primary:active,
+.btn-secondary:active {
+  transform: scale(0.97);
+}
+
+/* Card micro-interactions — enhanced from existing .content-card */
+.content-card-interactive {
+  /* Existing hover is good; adding subtle press feedback */
+}
+.content-card-interactive:active {
+  transform: scale(0.99);
+  transition: transform 0.08s ease-out;
+}
+
+/* Input micro-interactions — enhanced focus ring */
+.auth-input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.auth-input:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  /* Enhanced focus ring already in .auth-input:focus */
+}
+
+/* Chip micro-interactions */
+.chip {
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+}
+.chip:active {
+  transform: scale(0.96);
+}
+
+/* Drop zone enhanced states */
+.drop-zone {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+.drop-zone.dragover {
+  transform: scale(1.01);
+}
+.drop-zone.drop-success {
+  animation: dropSuccess 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+@keyframes dropSuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); border-color: var(--color-success); box-shadow: 0 0 30px rgba(52, 211, 153, 0.3); }
+  100% { transform: scale(1); }
+}
+
+/* Upload progress ring */
+.upload-progress-ring {
+  transition: stroke-dashoffset 0.3s ease-out;
+}
+
+/* Button press feedback */
+.btn-primary:active,
+.btn-secondary:active {
+  transform: scale(0.97);
+  transition: transform 0.08s ease-out;
+}
+
+/* Icon movement on hover — for buttons with icons */
+.btn-icon-move:hover .btn-icon {
+  transform: translateX(2px);
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Card entrance stagger — used with .sr-stagger parent */
+.sr-stagger > * {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+              transform 0.55s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.sr-stagger.sr-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Reduced motion: instant reveal */
+@media (prefers-reduced-motion: reduce) {
+  .sr-reveal,
+  .sr-stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Subtle color accents for flat white areas */
+.accent-primary { color: var(--color-primary); }
+.accent-primary-bg { background: var(--color-primary-container); }
+.accent-success { color: var(--color-success); }
+.accent-success-bg { background: var(--color-success-container); }
+.accent-warning { color: var(--color-warning); }
+.accent-warning-bg { background: var(--color-warning-container); }
+.accent-error { color: var(--color-error); }
+.accent-error-bg { background: var(--color-error-container); }
+
+/* Subtle surface accents for flat white areas */
+.surface-accent {
+  background: linear-gradient(135deg, var(--color-surface-container) 0%, var(--color-surface-container-high) 100%);
+  border: 1px solid var(--color-outline-variant);
+}
+.surface-accent-primary {
+  background: linear-gradient(135deg, var(--color-primary-container) 0%, var(--color-primary) 100%);
+  border: 1px solid var(--color-primary);
+}
+.surface-accent-subtle {
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading state shimmer enhancement */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+}
+@keyframes skeletonShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after { animation: none; }
+}
+
+/* Focus ring consistency */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+}
+
+/* Subtle color accents for flat white areas — using semantic tokens */
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-error { color: var(--color-error); }
+.text-on-surface { color: var(--color-on-surface); }
+.text-on-surface-variant { color: var(--color-on-surface-variant); }
+
+.bg-primary-subtle { background: var(--color-primary-container); }
+.bg-secondary-subtle { background: var(--color-secondary-container); }
+.bg-success-subtle { background: var(--color-success-container); }
+.bg-warning-subtle { background: var(--color-warning-container); }
+.bg-error-subtle { background: var(--color-error-container); }
+
+/* Border accents */
+.border-primary-subtle { border-color: var(--color-primary); }
+.border-success-subtle { border-color: var(--color-success); }
+.border-warning-subtle { border-color: var(--color-warning); }
+.border-error-subtle { border-color: var(--color-error); }
+
+/* Reduced motion: disable all decorative animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SPLASH SCREEN  (Brand video redesign — Sept 2026)
+   Shown only once per browser (localStorage flag 'epdf_seen').
+   The splash now plays the official brand animation video supplied by
+   the project owner (bird-carries-PDF → assembles into the EASYPDF
+   lockup) instead of a CSS/motion recreation. Background is solid white
+   to exactly match the reference video's background — no gradients,
+   glows, or particles layered on top per the brand asset brief.
+   Video sources: public/assets/splash/splash.webm (primary, VP9) and
+   splash.mp4 (H.264 fallback). Both re-encoded from the supplied
+   Splash_Screen1.mp4, 1280×720, ~4.01s, faststart enabled on the MP4.
+   ───────────────────────────────────────────────────────────── */
+
+/* Root container — full viewport, solid white to match the video bg */
+.splash-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  overflow: hidden;
+  isolation: isolate;
+  padding: env(safe-area-inset-top)
+           env(safe-area-inset-right)
+           env(safe-area-inset-bottom)
+           env(safe-area-inset-left);
+}
+
+/* Video fills the viewport while always preserving its 16:9 aspect
+   ratio and never cropping the logo — contain, not cover, per the
+   brief ("avoid cropping important parts of the logo"). Centered both
+   axes so it reads correctly on any screen size or orientation. */
+.splash-video {
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain;
+  object-position: center;
+  background: #ffffff;
+  /* No border-radius/shadow/filter — the video itself is the artwork */
+}
+
+/* Reduced-motion fallback: static final logo lockup, no video playback */
+.splash-static-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.splash-static-logo-img {
+  width: clamp(9rem, 40vw, 18rem);
+  height: auto;
+  object-fit: contain;
+}
+
+/* Mobile: video already scales via object-fit:contain, no extra rules
+   needed for 320/360/390px widths — verified the logo never crops. */
+
+/* Reduced motion: nothing further to disable here — SplashScreen.tsx
+   swaps to the static logo entirely and skips the <video> element. */
+
+/* ─────────────────────────────────────────────────────────────
+   AUTH MODAL POLISH (Aug 2026)
+   The modal backdrop already fades in via --animate-fadeIn (see the
+   MISSING ANIMATION TOKEN note above), but the panel itself popped in
+   instantly with no motion of its own. .auth-panel-in gives it a short,
+   understated settle-in (fade + slight rise + scale) so opening the
+   login/signup modal feels like one deliberate moment instead of a
+   sudden cut — subtle enough not to delay typing into the form.
+   .auth-logo-glow is a soft ambient radial glow sat behind the modal's
+   header logo, echoing the splash screen's backdrop glow at a much
+   smaller scale, so the brand mark reads as the focal point of the
+   header instead of floating on flat background.
+   ───────────────────────────────────────────────────────────── */
+.auth-panel-in {
+  animation: authPanelIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes authPanelIn {
+  0% { opacity: 0; transform: translateY(10px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.auth-logo-glow {
+  position: absolute;
+  inset: -30%;
+  z-index: -1;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.35) 0%, rgba(129, 140, 248, 0) 70%);
+  pointer-events: none;
+  filter: blur(4px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   AUTH MODAL REDESIGN (Aug 2026) — logo ring + input shell
+   Extends the auth modal polish above with the redesigned header mark
+   and form-field treatment. Reuses the exact same tokens as the rest of
+   the app (--color-primary #818cf8, --color-surface-bright, etc.) — no
+   new brand color is introduced anywhere in this block.
+   ───────────────────────────────────────────────────────────── */
+
+/* Wraps the modal's logo mark. .auth-logo-ring-spin draws a slow,
+   understated conic-gradient ring that rotates behind the mark — a
+   restrained echo of the splash screen's own orbit/sheen treatment, sized
+   for a small header icon rather than a full-screen moment. Paired with
+   the existing .auth-logo-glow (soft radial glow) for depth. */
+.auth-logo-ring {
+  display: inline-flex;
+}
+
+.auth-logo-ring-spin {
+  position: absolute;
+  inset: -8%;
+  z-index: -1;
+  border-radius: 9999px;
+  background: conic-gradient(from 0deg, rgba(129, 140, 248, 0) 0%, rgba(129, 140, 248, 0.55) 20%, rgba(129, 140, 248, 0) 40%);
+  animation: authLogoRingSpin 6s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes authLogoRingSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-logo-ring-spin {
+    animation: none;
+  }
+}
+
+/* Shared shell for the email/password inputs. Consolidates what used to
+   be repeated inline utility strings on each field (icon position, focus
+   ring, placeholder color) into one place so the redesigned inputs stay
+   visually identical to each other by construction. The focus state adds
+   a soft primary-colored glow (box-shadow) in addition to the border
+   color change, so focus is legible even for users who have trouble
+   perceiving the 1px border-color shift alone. */
+.auth-input-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-input-icon {
+  position: absolute;
+  left: 0.875rem;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-on-surface-variant);
+  pointer-events: none;
+}
+
+[dir='rtl'] .auth-input-icon {
+  left: auto;
+  right: 0.875rem;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  background: var(--color-surface-bright);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.75rem;
+  color: var(--color-on-surface);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+[dir='rtl'] .auth-input {
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+}
+
+.auth-input::placeholder {
+  color: rgba(148, 163, 184, 0.5); /* on-surface-variant/50 */
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18);
+  background: rgba(30, 41, 59, 0.9);
+}
+
+/* Extra trailing space for the password field's show/hide toggle button.
+   Deliberately a dedicated modifier class rather than a Tailwind pr-11
+   utility on the element: .auth-input above sets `padding` as a single
+   shorthand declaration, which — being a later, equal-specificity rule
+   in the cascade than Tailwind's generated utilities — would silently
+   win over a plain pr-11/rtl:pl-11 utility class and undo it. */
+.auth-input--pw {
+  padding-right: 2.75rem;
+}
+
+[dir='rtl'] .auth-input--pw {
+  padding-right: 1rem;
+  padding-left: 2.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-panel-in {
+    animation: fadeIn 0.2s ease-out both;
+  }
+}

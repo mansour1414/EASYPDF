@@ -1,0 +1,24 @@
+# EasyPDF — robots.txt (Sept 2026)
+#
+# Public marketing/informational pages are indexable. Account-specific and
+# internal pages (workspace, checkout, admin) are disallowed — they require
+# authentication to do anything useful anyway, so there's nothing for a
+# crawler to usefully index there, and admin routes in particular should
+# never appear in search results.
+
+User-agent: *
+Allow: /
+Allow: /tools
+Allow: /pricing
+Allow: /about
+Allow: /terms
+Allow: /privacy
+Allow: /refund
+
+Disallow: /workspace
+Disallow: /checkout
+Disallow: /checkout-success
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://easypdf-eight.vercel.app/sitemap.xml
